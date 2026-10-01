@@ -8,7 +8,7 @@
   // "https://attila.github.io/trello-dependency-powerup/icon.svg").
   // Ez az ikon jelenik meg a kártya hátulján a "Függőségek" szekció mellett.
   // ---------------------------------------------------------------------
-  var SECTION_ICON = "https://YOUR-USERNAME.github.io/YOUR-REPO/icon.svg";
+  var SECTION_ICON = "https://syke80.github.io/trello-dependency-powerup/icon.svg";
 
   var BLOCKS_KEY = "blocks";
   var BLOCKED_BY_KEY = "blockedBy";
