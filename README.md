@@ -57,9 +57,17 @@ publikus HTTPS címen kell tárolni, hogy a Trello be tudja ágyazni őket
 5. A Power-Up admin oldalán az **"Appearance"** fülön tölts fel egy ikont
    (ez csak az admin felületen és a Power-Up-választó listában jelenik meg,
    nem kell hozzá hosting — közvetlenül ide töltöd fel).
-6. A **"Capabilities"** fül magától felismeri a `client.js`-ben bejelentett
-   képességeket (`card-badges`, `card-detail-badges`, `card-back-section`),
-   amint a connector URL válaszol — nincs itt külön teendőd.
+6. Menj a **"Capabilities"** fülre. Itt **manuálisan be kell kapcsolnod**
+   mindhárom kapcsolót (ez nem automatikus, a `client.js` tartalmától
+   függetlenül külön regisztrálni kell őket):
+   - `card-badges`
+   - `card-detail-badges`
+   - `card-back-section`
+
+   Minden kapcsoló egy önálló be/ki toggle — nem kell hozzá külön URL-t
+   megadni, csak bekapcsolni. **Ne felejtsd el lementeni ("Save") az
+   űrlapot** a kapcsolók bekapcsolása után — enélkül semmi nem történik,
+   függetlenül attól, hogy a connector URL válaszol-e.
 
 ## 3. lépés — bekapcsolás egy board-on
 
@@ -67,14 +75,35 @@ publikus HTTPS címen kell tárolni, hogy a Trello be tudja ágyazni őket
 2. **Power-Ups menü → keresés → "Custom"** fül — itt megjelenik a saját
    Workspace-ed alatt regisztrált "Dependency Links" Power-Up.
 3. Kattints **"Add"**.
-4. Ettől kezdve minden kártyán megjelenik a "Függőségek" szekció a kártya
-   hátulján, és a badge-ek az előlapon.
+4. Frissítsd (hard refresh) a board oldalát. Ettől kezdve minden kártyán
+   megjelenik a "Függőségek" szekció a kártya hátulján, és a badge-ek az
+   előlapon.
 
 Mivel a bekapcsolás **board-szintű** beállítás, bárki, akit meghívsz a
 board-ra és aki megnyitja azt (bármelyik saját gépén), automatikusan látni
 fogja ugyanezt — nincs szükség arra, hogy ők is külön engedélyezzenek
 bármit. (Workspace-tagság sem feltétel a board megtekintéséhez/
 használatához — csak a board-hoz kell hozzáférésük legyen.)
+
+## Hibaelhárítás — ha egy capability sem jelenik meg
+
+1. **Nézd meg a Capabilities fület újra** — mindhárom kapcsoló tényleg
+   zölden/bekapcsolva áll-e, és rányomtál-e a "Save"-re utána.
+2. **Nyisd meg a böngésző konzolját a board oldalon** (F12 → Console), és
+   keress egy ilyen üzenetet:
+   `Power-Up ... implements capabilities that haven't been enabled [...]`
+   — ha ezt látod, pontosan megmondja, melyik kapcsolót felejtetted ki a
+   portálon.
+3. **Nézd meg a Network fület** is: töltődik-e be hiba nélkül a
+   `connector.html`, utána a `client.js`? 404 vagy vegyes HTTP/HTTPS
+   tartalom (mixed content) hiba esetén a Power-Up csendben nem csinál
+   semmit, hibaüzenet nélkül.
+4. **Kapcsold ki a gyorsítótárat** a devtools Network fülén (vagy nyomj
+   kemény frissítést, Ctrl/Cmd+Shift+R), mert a connector/client.js régi,
+   cache-elt verziója is okozhat ilyen tünetet.
+5. Ha ettől sem mozdul semmi: vedd le a Power-Upot a board-ról, és add
+   hozzá újra (Power-Ups menü → a három pötty a Power-Up neve mellett →
+   Remove, majd Add újra).
 
 ## Ismert korlátok (v1)
 
