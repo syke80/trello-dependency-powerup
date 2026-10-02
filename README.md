@@ -1,120 +1,118 @@
-# Dependency Links — privát Trello Power-Up
+# Dependency Links — private Trello Power-Up
 
-Két mezőt ad minden kártya hátuljára:
+Adds two fields to the back of every card:
 
-- **Blocking** — kártyák, amiket ez a kártya blokkol
-- **Blocked by** — kártyák, amik blokkolják ezt a kártyát
+- **Blocking** — cards that this card blocks
+- **Blocked by** — cards that block this card
 
-Mindkettő élő kereséssel működik (gépelés közben szűri a tábla kártyáit),
-és kétirányúan szinkronban tartja magát: ha A-t hozzáadod B "Blocking"
-mezőjéhez, B automatikusan megjelenik A "Blocked by" mezőjében is.
+Both work with live search (filters the board's cards as you type), and
+keep themselves in sync bidirectionally: if you add A to B's "Blocking"
+field, B automatically shows up in A's "Blocked by" field too.
 
-A kártya előlapján emellett egy-egy apró számjelző (badge) is megjelenik,
-ha a kártyát valami blokkolja (🔒) vagy ha ő blokkol valamit (⛔).
+The front of the card also gets a small count badge: if something blocks
+it (🔒), or if it blocks something (⛔).
 
-**Nincs szükség semmilyen saját szerverre/backendre.** Minden adatot a
-Trello saját "plugin data" tárolója őriz meg (`t.set` / `t.get`), a Trello
-fiókodhoz és a board-hoz kötve. Egyetlen dolog kell hozzá: a fájlokat egy
-publikus HTTPS címen kell tárolni, hogy a Trello be tudja ágyazni őket
-(ez nem "backend", csak statikus fájl-hosting).
+**No server/backend of any kind is required.** All data is kept by
+Trello's own "plugin data" store (`t.set` / `t.get`), tied to your Trello
+account and the board. The only thing you need is to host the files at a
+public HTTPS URL so Trello can embed them (that's not a "backend", just
+static file hosting).
 
-## 1. lépés — a fájlok publikálása GitHub Pages-re
+## Step 1 — publish the files to GitHub Pages
 
-1. Hozz létre egy új **publikus** GitHub repót (pl. `trello-dependency-powerup`).
-2. Töltsd fel bele ennek a csomagnak mind a 6 fájlját **a repó gyökerébe**
-   (ne almappába): `index.html`, `connector.html`, `client.js`,
+1. Create a new **public** GitHub repo (e.g. `trello-dependency-powerup`).
+2. Upload all 6 files from this package **into the repo root** (not a
+   subfolder): `index.html`, `connector.html`, `client.js`,
    `section.html`, `section.js`, `icon.svg`.
-3. A repóban: **Settings → Pages → Build and deployment → Source: Deploy
-   from a branch**, branch: `main`, mappa: `/ (root)` → Save.
-4. Pár perc múlva él az oldal itt:
-   `https://<FELHASZNÁLÓNEVED>.github.io/<REPO-NÉV>/`
-5. Nyisd meg a `client.js` fájlt a repóban, és a tetején cseréld ki ezt a
-   sort a saját tényleges URL-edre:
+3. In the repo: **Settings → Pages → Build and deployment → Source: Deploy
+   from a branch**, branch: `main`, folder: `/ (root)` → Save.
+4. After a couple of minutes the page is live at:
+   `https://<YOUR-USERNAME>.github.io/<REPO-NAME>/`
+5. Open `client.js` in the repo, and at the top replace this line with
+   your actual URL:
 
    ```js
    var SECTION_ICON = "https://YOUR-USERNAME.github.io/YOUR-REPO/icon.svg";
    ```
 
-   Mentsd el (commit) — a GitHub Pages automatikusan újrapublikálja.
+   Commit it — GitHub Pages republishes automatically.
 
-## 2. lépés — Power-Up regisztrálása a Trello-ban
+## Step 2 — register the Power-Up in Trello
 
-1. Menj a **[trello.com/power-ups/admin](https://trello.com/power-ups/admin)**
-   oldalra, és kattints **"New"**.
-2. A **"For Workspace"** mezőben válaszd ki a saját Workspace-edet (ha még
-   sosem hoztál létre csapatot, Trello automatikusan csinált neked egy
-   alapértelmezettet — abban te vagy az admin).
-3. Adj neki egy nevet (pl. "Dependency Links"), és az **"Iframe Connector
-   URL"** mezőbe írd be:
+1. Go to **[trello.com/power-ups/admin](https://trello.com/power-ups/admin)**
+   and click **"New"**.
+2. In the **"For Workspace"** field, pick your Workspace (if you've never
+   explicitly created a team, Trello already made you a default one — you
+   are its admin).
+3. Give it a name (e.g. "Dependency Links"), and in the **"Iframe
+   Connector URL"** field enter:
 
    ```
-   https://<FELHASZNÁLÓNEVED>.github.io/<REPO-NÉV>/connector.html
+   https://<YOUR-USERNAME>.github.io/<REPO-NAME>/connector.html
    ```
 
-4. Mentsd el. A Power-Up ettől kezdve **privát** — nincs beküldve a nyilvános
-   Power-Up katalógusba, csak a te Workspace-edhez tartozó board-okon
-   érhető el.
-5. A Power-Up admin oldalán az **"Appearance"** fülön tölts fel egy ikont
-   (ez csak az admin felületen és a Power-Up-választó listában jelenik meg,
-   nem kell hozzá hosting — közvetlenül ide töltöd fel).
-6. Menj a **"Capabilities"** fülre. Itt **manuálisan be kell kapcsolnod**
-   mindhárom kapcsolót (ez nem automatikus, a `client.js` tartalmától
-   függetlenül külön regisztrálni kell őket):
+4. Save. The Power-Up is now **private** from here on — it is not
+   submitted to the public Power-Up directory, and is only available on
+   boards that belong to your Workspace.
+5. On the Power-Up's admin page, under the **"Appearance"** tab, upload an
+   icon (this only appears in the admin UI and the Power-Up picker list —
+   it needs no hosting, you upload it directly there).
+6. Go to the **"Capabilities"** tab. Here you need to **manually turn
+   on** all three toggles (this is not automatic — they need to be
+   registered separately, regardless of what `client.js` implements):
    - `card-badges`
    - `card-detail-badges`
    - `card-back-section`
 
-   Minden kapcsoló egy önálló be/ki toggle — nem kell hozzá külön URL-t
-   megadni, csak bekapcsolni. **Ne felejtsd el lementeni ("Save") az
-   űrlapot** a kapcsolók bekapcsolása után — enélkül semmi nem történik,
-   függetlenül attól, hogy a connector URL válaszol-e.
+   Each is its own on/off toggle — no separate URL is needed, just turn
+   it on. **Don't forget to save the form** after turning the toggles
+   on — without that, nothing happens, regardless of whether the
+   connector URL responds.
 
-## 3. lépés — bekapcsolás egy board-on
+## Step 3 — turn it on for a board
 
-1. Nyiss meg egy board-ot, amin ki szeretnéd próbálni.
-2. **Power-Ups menü → keresés → "Custom"** fül — itt megjelenik a saját
-   Workspace-ed alatt regisztrált "Dependency Links" Power-Up.
-3. Kattints **"Add"**.
-4. Frissítsd (hard refresh) a board oldalát. Ettől kezdve minden kártyán
-   megjelenik a "Függőségek" szekció a kártya hátulján, és a badge-ek az
-   előlapon.
+1. Open a board you want to try it on.
+2. **Power-Ups menu → search → "Custom"** tab — your "Dependency Links"
+   Power-Up, registered under your Workspace, shows up here.
+3. Click **"Add"**.
+4. Hard-refresh the board page. From then on, every card gets the
+   "Dependencies" section on its back, and the badges on its front.
 
-Mivel a bekapcsolás **board-szintű** beállítás, bárki, akit meghívsz a
-board-ra és aki megnyitja azt (bármelyik saját gépén), automatikusan látni
-fogja ugyanezt — nincs szükség arra, hogy ők is külön engedélyezzenek
-bármit. (Workspace-tagság sem feltétel a board megtekintéséhez/
-használatához — csak a board-hoz kell hozzáférésük legyen.)
+Since turning it on is a **board-level** setting, anyone you invite to
+the board who opens it (on any device of their own) will automatically
+see the same thing — they don't need to enable anything themselves.
+(Workspace membership isn't required to view/use the board either — they
+just need access to the board.)
 
-## Hibaelhárítás — ha egy capability sem jelenik meg
+## Troubleshooting — if no capability shows up at all
 
-1. **Nézd meg a Capabilities fület újra** — mindhárom kapcsoló tényleg
-   zölden/bekapcsolva áll-e, és rányomtál-e a "Save"-re utána.
-2. **Nyisd meg a böngésző konzolját a board oldalon** (F12 → Console), és
-   keress egy ilyen üzenetet:
+1. **Check the Capabilities tab again** — are all three toggles actually
+   green/on, and did you click "Save" afterward?
+2. **Open the browser console on the board page** (F12 → Console), and
+   look for a message like:
    `Power-Up ... implements capabilities that haven't been enabled [...]`
-   — ha ezt látod, pontosan megmondja, melyik kapcsolót felejtetted ki a
-   portálon.
-3. **Nézd meg a Network fület** is: töltődik-e be hiba nélkül a
-   `connector.html`, utána a `client.js`? 404 vagy vegyes HTTP/HTTPS
-   tartalom (mixed content) hiba esetén a Power-Up csendben nem csinál
-   semmit, hibaüzenet nélkül.
-4. **Kapcsold ki a gyorsítótárat** a devtools Network fülén (vagy nyomj
-   kemény frissítést, Ctrl/Cmd+Shift+R), mert a connector/client.js régi,
-   cache-elt verziója is okozhat ilyen tünetet.
-5. Ha ettől sem mozdul semmi: vedd le a Power-Upot a board-ról, és add
-   hozzá újra (Power-Ups menü → a három pötty a Power-Up neve mellett →
-   Remove, majd Add újra).
+   — if you see this, it tells you exactly which toggle you missed in the
+   portal.
+3. **Check the Network tab** too: does `connector.html` load without
+   error, and then `client.js`? On a 404 or mixed HTTP/HTTPS content
+   error, the Power-Up silently does nothing, with no error message.
+4. **Disable the cache** in devtools' Network tab (or do a hard refresh,
+   Ctrl/Cmd+Shift+R), since an old, cached version of connector.js/
+   client.js can also cause this symptom.
+5. If none of that moves the needle: remove the Power-Up from the board
+   and add it again (Power-Ups menu → the three dots next to the
+   Power-Up's name → Remove, then Add again).
 
-## Ismert korlátok (v1)
+## Known limitations (v1)
 
-- A keresés csak az **aktuális board** (nem archivált) kártyái között
-  működik — másik board kártyájára nem lehet hivatkozni.
-- Nincs **körkörös függőség elleni védelem** (A blokkolja B-t, B blokkolja
-  A-t egyszerre is beállítható) — ha ez gond, szólj, és beépítjük, ahogy az
-  Építési Sorrend appban is megvan.
-- Egy mezőben (Blocking / Blocked by) kártyánként kb. **140 linkelt kártyáig**
-  van hely (a Trello 4096 karakteres limitje miatt soronként) — a gyakorlatban
-  ez bőven elég.
-- Törölt/archivált kártyára mutató link "(törölt vagy archivált kártya)"
-  címkével jelenik meg, de nem tűnik el automatikusan — kézzel eltávolítható
-  a ×-szel.
+- Search only works among the cards on the **current board** (not
+  archived ones) — you can't reference a card on a different board.
+- There's **no protection against circular dependencies** (you can set A
+  blocks B and B blocks A at the same time) — if that's an issue, let me
+  know and we'll add it, the way the Építési Sorrend app already does.
+- Each field (Blocking / Blocked by) has room for roughly **140 linked
+  cards** per card (due to Trello's 4096-character limit per row) — in
+  practice that's plenty.
+- A link pointing to a deleted/archived card shows up labeled "(deleted
+  or archived card)", but doesn't disappear automatically — it can be
+  removed manually with the ×.

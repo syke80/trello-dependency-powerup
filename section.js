@@ -15,7 +15,7 @@
   function showError(err) {
     var el = document.getElementById("error");
     el.hidden = false;
-    el.textContent = "Hiba történt: " + (err && err.message ? err.message : "ismeretlen hiba");
+    el.textContent = "Error: " + (err && err.message ? err.message : "unknown error");
   }
 
   function clearError() {
@@ -25,8 +25,8 @@
   }
 
   function resize() {
-    // Az iframe magasságát a tényleges tartalomhoz igazítja (pl. amikor
-    // kinyílik egy javaslatlista, vagy új chip kerül be).
+    // Adjusts the iframe's height to the actual content (e.g. when a
+    // suggestion list opens, or a new chip is added).
     t.sizeTo("#app").catch(function () {});
   }
 
@@ -63,7 +63,7 @@
     return t.set(cardId, "shared", key, ids);
   }
 
-  // blockerId blokkolja blockedId-t
+  // blockerId blocks blockedId
   function addLink(blockerId, blockedId) {
     return Promise.all([
       getIds(blockerId, BLOCKS_KEY),
@@ -98,7 +98,7 @@
     containerEl.innerHTML = "";
     ids.forEach(function (id) {
       var c = cardById(id);
-      var label = c ? cardLabel(c) : "(törölt vagy archivált kártya)";
+      var label = c ? cardLabel(c) : "(deleted or archived card)";
 
       var chip = document.createElement("span");
       chip.className = "chip";
@@ -111,7 +111,7 @@
       removeBtn.type = "button";
       removeBtn.className = "chip-x";
       removeBtn.textContent = "×";
-      removeBtn.setAttribute("aria-label", "Eltávolítás");
+      removeBtn.setAttribute("aria-label", "Remove");
       removeBtn.addEventListener("click", function () { onRemove(id); });
       chip.appendChild(removeBtn);
 
@@ -119,8 +119,8 @@
     });
   }
 
-  // direction: "blocking"  -> ez a kártya blokkolja a kiválasztottat
-  //            "blockedby" -> a kiválasztott blokkolja ezt a kártyát
+  // direction: "blocking"  -> this card blocks the one picked
+  //            "blockedby" -> the one picked blocks this card
   function wireField(prefix, direction) {
     var input = document.getElementById(prefix + "-search");
     var chipsEl = document.getElementById(prefix + "-chips");
@@ -189,7 +189,7 @@
   }
 
   document.addEventListener("click", function (e) {
-    // Kattintás a javaslatlistán kívülre: zárja be a nyitott listákat.
+    // Clicking outside the suggestion list closes any open lists.
     ["blocking", "blockedby"].forEach(function (prefix) {
       var input = document.getElementById(prefix + "-search");
       var suggestionsEl = document.getElementById(prefix + "-suggestions");
