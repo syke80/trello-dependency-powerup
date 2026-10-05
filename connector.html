@@ -6,7 +6,15 @@
 </head>
 <body>
   <!-- This URL goes into the Trello Power-Up Admin Portal's "Iframe Connector URL" field. -->
+  <!--
+    The "?v=N" on client.js is the same cache-busting trick used for
+    section.html (see the SECTION_VERSION comment in client.js): browsers
+    cache this file separately per top-level site (trello.com vs. opening
+    it directly), so a plain reload in Trello can keep serving an old,
+    cached client.js forever. Bump this number every time you change
+    client.js and republish.
+  -->
   <script src="https://p.trellocdn.com/power-up.min.js"></script>
-  <script src="./client.js"></script>
+  <script src="./client.js?v=2"></script>
 </body>
 </html>

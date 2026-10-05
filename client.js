@@ -30,45 +30,73 @@
   var BLOCKS_KEY = "blocks";
   var BLOCKED_BY_KEY = "blockedBy";
 
-  // Both badges (the front-of-card indicators) share the same logic, for
-  // both the card-badges and card-detail-badges capabilities.
-  function buildBadges(t) {
+  function readCounts(t) {
     return Promise.all([
       t.get("card", "shared", BLOCKS_KEY, []),
       t.get("card", "shared", BLOCKED_BY_KEY, [])
     ]).then(function (res) {
-      var blocks = res[0] || [];
-      var blockedBy = res[1] || [];
-      var badges = [];
-
-      if (blockedBy.length > 0) {
-        badges.push({
-          text: "🔒 " + blockedBy.length,
-          color: "orange",
-          title: "This many cards block this card"
-        });
-      }
-      if (blocks.length > 0) {
-        badges.push({
-          text: "⛔ " + blocks.length,
-          color: "blue",
-          title: "This card blocks this many others"
-        });
-      }
-      return badges;
+      return { blocks: (res[0] || []).length, blockedBy: (res[1] || []).length };
     }).catch(function () {
       // If reading pluginData fails (transiently), don't break the card
       // view — just show no badge.
-      return [];
+      return { blocks: 0, blockedBy: 0 };
+    });
+  }
+
+  // card-badges (front of the card): the documented badge fields are
+  // dynamic/text/icon/color/monochrome/refresh — NOT title, so no tooltip
+  // text here. Icons are plain emoji inside `text`, which needs no hosted
+  // image: ⛔ ("no entry") for "something is blocking this", ⚠️ ("warning")
+  // for "this is itself blocking something".
+  //
+  // NOTE ON POSITION: Trello does not document or expose any control over
+  // where a Power-Up's badges sit in the badge row relative to Trello's
+  // own (due date, checklist, comments, ...) — in practice they're
+  // appended after Trello's built-in ones, not placed first, and there is
+  // no way to pin a badge into the member-avatars corner (that area is
+  // entirely Trello's own rendering, outside any Power-Up capability).
+  function buildFrontBadges(t) {
+    return readCounts(t).then(function (c) {
+      var badges = [];
+      if (c.blockedBy > 0) {
+        badges.push({ text: "⛔ " + c.blockedBy, color: "red" });
+      }
+      if (c.blocks > 0) {
+        badges.push({ text: "⚠️ " + c.blocks, color: "yellow" });
+      }
+      return badges;
+    });
+  }
+
+  // card-detail-badges (top of the card-back view): this capability DOES
+  // support `title`, shown as a label above the badge, so we keep it here.
+  function buildDetailBadges(t) {
+    return readCounts(t).then(function (c) {
+      var badges = [];
+      if (c.blockedBy > 0) {
+        badges.push({
+          text: "⛔ " + c.blockedBy,
+          color: "red",
+          title: "Blocked by"
+        });
+      }
+      if (c.blocks > 0) {
+        badges.push({
+          text: "⚠️ " + c.blocks,
+          color: "yellow",
+          title: "Blocking"
+        });
+      }
+      return badges;
     });
   }
 
   TrelloPowerUp.initialize({
     "card-badges": function (t) {
-      return buildBadges(t);
+      return buildFrontBadges(t);
     },
     "card-detail-badges": function (t) {
-      return buildBadges(t);
+      return buildDetailBadges(t);
     },
     "card-back-section": function (t) {
       return {
