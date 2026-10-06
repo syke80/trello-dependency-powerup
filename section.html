@@ -23,6 +23,9 @@
       background:#f4f5f7; border:1px solid #dfe1e6; border-radius:12px;
       padding:3px 6px 3px 10px; font-size:12.5px; line-height:1.4; color:#172b4d;
     }
+    /* Done / archived / deleted cards: link kept as history, no longer active. */
+    .chip.done{ opacity:.6; }
+    .chip.done .chip-label{ text-decoration:line-through; }
     .chip-x{
       border:none; background:#dfe1e6; color:#42526e; border-radius:50%;
       width:16px; height:16px; line-height:1; font-size:12px; cursor:pointer;
@@ -63,22 +66,22 @@
 <body>
   <div id="app">
     <div class="group">
-      <label>Blocking</label>
-      <div class="chips" id="blocking-chips"></div>
+      <label>Depends on</label>
+      <div class="chips" id="depends-chips"></div>
       <div class="field-wrap">
-        <input type="text" id="blocking-search" autocomplete="off"
-          placeholder="Search for a card this blocks…">
-        <div class="suggestions" id="blocking-suggestions"></div>
+        <input type="text" id="depends-search" autocomplete="off"
+          placeholder="Search for a prerequisite card…">
+        <div class="suggestions" id="depends-suggestions"></div>
       </div>
     </div>
 
     <div class="group">
-      <label>Blocked by</label>
-      <div class="chips" id="blockedby-chips"></div>
+      <label>Required by</label>
+      <div class="chips" id="required-chips"></div>
       <div class="field-wrap">
-        <input type="text" id="blockedby-search" autocomplete="off"
-          placeholder="Search for a card that blocks this…">
-        <div class="suggestions" id="blockedby-suggestions"></div>
+        <input type="text" id="required-search" autocomplete="off"
+          placeholder="Search for a card that needs this one…">
+        <div class="suggestions" id="required-suggestions"></div>
       </div>
     </div>
 
